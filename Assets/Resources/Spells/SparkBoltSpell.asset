@@ -9,14 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d6e21cb8e5ab4177ba9c4e35cbec2a9d, type: 3}
-  m_Name: Wand_01
+  m_Script: {fileID: 11500000, guid: 547fa8192177460e963cd59ef31f2abd, type: 3}
+  m_Name: SparkBoltSpell
   m_EditorClassIdentifier: 
-  maxMana: 50
-  manaRechargeRate: 3
-  rechargeTime: 1
-  spread: 5
-  cooldown: 3
-  projectileSpeedMultiplier: 1
-  spells:
-  - {fileID: 11400000, guid: 4196e134106f33b48a83ed876104b68a, type: 2}
+  spellName: Spark Bolt
+  manaCost: 10
+  cooldown: 0.5
+  projectilePrefab: {fileID: 4657926749697978084, guid: ca495f0fc83b35d4190c25fe9adf53a0, type: 3}
+  baseProjectileSpeed: 10
+  damage: 5
