@@ -9,6 +9,9 @@ public class WizardController : MonoBehaviour
     public string wizardName;
     public int maxHealth = 100;
     private int currentHealth;
+    public float GetCurrentMana() => wandManager.GetCurrentMana();
+    public float GetMaxMana() => wandManager.GetMaxMana();
+
 
     [Header("References")]
     public WandManager wandManager; // Using WandManager

@@ -11,6 +11,9 @@ public class WandManager : MonoBehaviour
     public GameObject target;
     private float currentMana;
     private Coroutine firingCoroutine;
+    public float GetCurrentMana() => currentMana;
+    public float GetMaxMana() => wandData.maxMana;
+
 
     private void Start()
     {

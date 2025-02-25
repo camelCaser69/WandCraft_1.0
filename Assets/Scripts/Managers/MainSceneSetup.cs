@@ -1,7 +1,5 @@
 // ==================== MainSceneSetup.cs ====================
-// Sets up the main scene with camera, lighting, UI elements for HP display,
-// allows scene resolution adjustments, supports customizable placeholder text,
-// and spawns wizards from prefabs, starting the battle.
+// Updates: Mana now displays as whole numbers (floored) to avoid rendering issues.
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,11 +13,13 @@ public class MainSceneSetup : MonoBehaviour
     [Header("UI Settings")]
     public Canvas uiCanvas;
     public Text playerHPText;
+    public Text playerManaText;
     public Text enemyHPText;
+    public Text enemyManaText;
 
     [Header("Placeholder Settings")]
     public bool useCustomPlaceholderText = false;
-    public string customPlaceholderText = "HP: ???";
+    public string customPlaceholderText = "HP: ???\nMana: ???";
 
     [Header("Wizard Prefabs")]
     public GameObject playerWizardPrefab;
@@ -42,7 +42,7 @@ public class MainSceneSetup : MonoBehaviour
     private void Start()
     {
         InitializeWizards();
-        UpdateHPUI(); // Initial HP UI update
+        UpdateUI(); // Initial UI update
     }
 
     private void SetupCamera()
@@ -100,8 +100,11 @@ public class MainSceneSetup : MonoBehaviour
             scaler.referenceResolution = sceneResolution;
             canvasObj.AddComponent<GraphicRaycaster>();
         }
-        playerHPText = CreateHPText("Player HP", new Vector2(100, -50), TextAnchor.UpperLeft);
-        enemyHPText = CreateHPText("Enemy HP", new Vector2(-100, -50), TextAnchor.UpperRight);
+        playerHPText = CreateUIText("Player HP", new Vector2(100, -50), TextAnchor.UpperLeft);
+        playerManaText = CreateUIText("Player Mana", new Vector2(100, -80), TextAnchor.UpperLeft);
+        enemyHPText = CreateUIText("Enemy HP", new Vector2(-100, -50), TextAnchor.UpperRight);
+        enemyManaText = CreateUIText("Enemy Mana", new Vector2(-100, -80), TextAnchor.UpperRight);
+
         ApplyPlaceholderText();
     }
 
@@ -110,34 +113,38 @@ public class MainSceneSetup : MonoBehaviour
         if (useCustomPlaceholderText)
         {
             playerHPText.text = customPlaceholderText;
+            playerManaText.text = customPlaceholderText;
             enemyHPText.text = customPlaceholderText;
+            enemyManaText.text = customPlaceholderText;
         }
         else
         {
             playerHPText.text = "Player HP: ???";
+            playerManaText.text = "Mana: ???";
             enemyHPText.text = "Enemy HP: ???";
+            enemyManaText.text = "Mana: ???";
         }
     }
 
-    private Text CreateHPText(string label, Vector2 offset, TextAnchor anchor)
+    private Text CreateUIText(string label, Vector2 offset, TextAnchor anchor)
     {
         GameObject textObj = new GameObject(label);
         textObj.transform.SetParent(uiCanvas.transform, false);
-        Text hpText = textObj.AddComponent<Text>();
-        hpText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        hpText.fontSize = 24;
-        hpText.color = Color.white;
-        hpText.alignment = anchor;
-        RectTransform rect = hpText.GetComponent<RectTransform>();
+        Text uiText = textObj.AddComponent<Text>();
+        uiText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        uiText.fontSize = 24;
+        uiText.color = Color.white;
+        uiText.alignment = anchor;
+        RectTransform rect = uiText.GetComponent<RectTransform>();
         rect.anchorMin = anchor == TextAnchor.UpperLeft ? new Vector2(0, 1) : new Vector2(1, 1);
         rect.anchorMax = rect.anchorMin;
         rect.pivot = new Vector2(0.5f, 0.5f);
         rect.anchoredPosition = offset;
-        rect.sizeDelta = new Vector2(160, 30);
-        return hpText;
+        rect.sizeDelta = new Vector2(180, 30);
+        return uiText;
     }
 
-    // ================== WIZARD SPAWNING & BATTLE INIT ==================
+    // ================== WIZARD SPAWNING & UI UPDATES ==================
     private void InitializeWizards()
     {
         if (playerWizardPrefab == null || enemyWizardPrefab == null)
@@ -146,40 +153,42 @@ public class MainSceneSetup : MonoBehaviour
             return;
         }
 
-        // Instantiate Player Wizard
+        // Instantiate Player
         GameObject playerWizard = Instantiate(playerWizardPrefab, playerSpawnPoint.position, Quaternion.identity);
         playerWizard.name = "PlayerWizard";
         playerWizardController = playerWizard.GetComponent<WizardController>();
 
-        // Instantiate Enemy Wizard
+        // Instantiate Enemy
         GameObject enemyWizard = Instantiate(enemyWizardPrefab, enemySpawnPoint.position, Quaternion.identity);
         enemyWizard.name = "EnemyWizard";
         enemyWizardController = enemyWizard.GetComponent<WizardController>();
 
-        // Dynamically assign targets: set enemy as target for player, and vice versa.
-        if (playerWizardController != null && enemyWizardController != null)
-        {
-            playerWizardController.wandManager.target = enemyWizard;
-            enemyWizardController.wandManager.target = playerWizard;
-        }
-        else
-        {
-            Debug.LogWarning("One or both WizardControllers are missing.");
-        }
-
-        // Start the battle sequence for both wizards.
+        // Start battle
         playerWizardController.StartBattle();
         enemyWizardController.StartBattle();
-
-        Debug.Log("Wizards have been spawned, targets assigned, and battle started.");
+        Debug.Log("Wizards have been spawned and battle started.");
     }
 
-    private void UpdateHPUI()
+    private void Update()
     {
         if (playerWizardController != null && enemyWizardController != null)
         {
+            UpdateUI();
+        }
+    }
+
+    private void UpdateUI()
+    {
+        if (playerWizardController != null)
+        {
             playerHPText.text = $"Player HP: {playerWizardController.maxHealth}";
+            playerManaText.text = $"Mana: {Mathf.Floor(playerWizardController.GetCurrentMana())}/{playerWizardController.GetMaxMana()}";
+        }
+
+        if (enemyWizardController != null)
+        {
             enemyHPText.text = $"Enemy HP: {enemyWizardController.maxHealth}";
+            enemyManaText.text = $"Mana: {Mathf.Floor(enemyWizardController.GetCurrentMana())}/{enemyWizardController.GetMaxMana()}";
         }
     }
 }
