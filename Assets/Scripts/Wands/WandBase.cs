@@ -1,6 +1,7 @@
 ﻿// ==================== WandBase.cs ====================
-// Base wand data class containing core stats
+// Base wand data class containing core stats and spell management
 using UnityEngine;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class WandBase : ScriptableObject
@@ -12,5 +13,15 @@ public class WandBase : ScriptableObject
     public float cooldown;
     public float projectileSpeedMultiplier;
 
-    // To be expanded with additional wand properties
+    public List<SpellBase> spells = new List<SpellBase>();
+
+    public float CalculateTotalManaCost()
+    {
+        float totalCost = 0f;
+        foreach (SpellBase spell in spells)
+        {
+            totalCost += spell.manaCost;
+        }
+        return totalCost;
+    }
 }
