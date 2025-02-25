@@ -10,11 +10,36 @@ public class WandManager : MonoBehaviour
     public GameObject target;
     private float currentMana;
     private bool isRecharging;
+    private Coroutine firingCoroutine;
 
     private void Start()
     {
+        InitializeWand();
+    }
+
+    public void InitializeWand()
+    {
         currentMana = wandData.maxMana;
-        StartCoroutine(FireWandSequence());
+        Debug.Log($"Wand {gameObject.name} initialized with {currentMana} mana.");
+    }
+
+    public void StartFiring()
+    {
+        if (firingCoroutine == null)
+        {
+            firingCoroutine = StartCoroutine(FireWandSequence());
+            Debug.Log($"Wand {gameObject.name} started firing.");
+        }
+    }
+
+    public void StopFiring()
+    {
+        if (firingCoroutine != null)
+        {
+            StopCoroutine(firingCoroutine);
+            firingCoroutine = null;
+            Debug.Log($"Wand {gameObject.name} stopped firing.");
+        }
     }
 
     private IEnumerator FireWandSequence()

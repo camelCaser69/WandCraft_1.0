@@ -1,21 +1,60 @@
 ﻿// ==================== WizardController.cs ====================
-// Controls wizard behavior: wand usage, damage handling
+// Handles wizard logic: health, damage, and interacts with WandManager for spell casting.
+
 using UnityEngine;
 
 public class WizardController : MonoBehaviour
 {
-    public WandManager wandManager;
-    public float maxHP;
-    public float currentHP;
+    [Header("Wizard Settings")]
+    public string wizardName;
+    public int maxHealth = 100;
+    private int currentHealth;
+
+    [Header("References")]
+    public WandManager wandManager; // Using WandManager
+
+    private void Awake()
+    {
+        currentHealth = maxHealth;
+        if (wandManager == null)
+        {
+            wandManager = GetComponentInChildren<WandManager>();
+            if (wandManager == null)
+            {
+                Debug.LogWarning($"{wizardName} has no WandManager assigned.");
+            }
+        }
+    }
 
     private void Start()
     {
-        currentHP = maxHP;
+        wandManager?.InitializeWand();
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(int amount)
     {
-        currentHP -= amount;
-        Debug.Log($"Wizard {gameObject.name} took {amount} damage. Current HP: {currentHP}");
+        currentHealth -= amount;
+        Debug.Log($"{wizardName} took {amount} damage. Remaining HP: {currentHealth}");
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log($"{wizardName} has been defeated!");
+        gameObject.SetActive(false);
+    }
+
+    public void StartBattle()
+    {
+        wandManager?.StartFiring();
+    }
+
+    public void StopBattle()
+    {
+        wandManager?.StopFiring();
     }
 }

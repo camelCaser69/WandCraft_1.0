@@ -1,6 +1,8 @@
 // ==================== MainSceneSetup.cs ====================
 // Sets up the main scene with camera, lighting, UI elements for HP display,
-// allows scene resolution adjustments, and supports customizable placeholder text
+// allows scene resolution adjustments, supports customizable placeholder text,
+// and spawns wizards from prefabs, starting the battle.
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,11 +21,28 @@ public class MainSceneSetup : MonoBehaviour
     public bool useCustomPlaceholderText = false;
     public string customPlaceholderText = "HP: ???";
 
+    [Header("Wizard Prefabs")]
+    public GameObject playerWizardPrefab;
+    public GameObject enemyWizardPrefab;
+
+    [Header("Spawn Points")]
+    public Transform playerSpawnPoint;
+    public Transform enemySpawnPoint;
+
+    private WizardController playerWizardController;
+    private WizardController enemyWizardController;
+
     private void Awake()
     {
         SetupCamera();
         SetupLighting();
         SetupUI();
+    }
+
+    private void Start()
+    {
+        InitializeWizards();
+        UpdateHPUI(); // Initial HP UI update
     }
 
     private void SetupCamera()
@@ -117,5 +136,39 @@ public class MainSceneSetup : MonoBehaviour
         rect.anchoredPosition = offset;
         rect.sizeDelta = new Vector2(160, 30);
         return hpText;
+    }
+
+    // ================== NEW WIZARD SPAWNING & BATTLE INIT ==================
+    private void InitializeWizards()
+    {
+        if (playerWizardPrefab == null || enemyWizardPrefab == null)
+        {
+            Debug.LogError("Wizard prefabs are not assigned in MainSceneSetup.");
+            return;
+        }
+
+        // Instantiate Player
+        GameObject playerWizard = Instantiate(playerWizardPrefab, playerSpawnPoint.position, Quaternion.identity);
+        playerWizard.name = "PlayerWizard";
+        playerWizardController = playerWizard.GetComponent<WizardController>();
+
+        // Instantiate Enemy
+        GameObject enemyWizard = Instantiate(enemyWizardPrefab, enemySpawnPoint.position, Quaternion.identity);
+        enemyWizard.name = "EnemyWizard";
+        enemyWizardController = enemyWizard.GetComponent<WizardController>();
+
+        // Subscribe to health updates if needed
+        playerWizardController.StartBattle();
+        enemyWizardController.StartBattle();
+        Debug.Log("Wizards have been spawned and battle started.");
+    }
+
+    private void UpdateHPUI()
+    {
+        if (playerWizardController != null && enemyWizardController != null)
+        {
+            playerHPText.text = $"Player HP: {playerWizardController.maxHealth}";
+            enemyHPText.text = $"Enemy HP: {enemyWizardController.maxHealth}";
+        }
     }
 }
