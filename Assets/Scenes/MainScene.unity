@@ -296,8 +296,8 @@ MonoBehaviour:
   enemyHPText: {fileID: 0}
   useCustomPlaceholderText: 1
   customPlaceholderText: 'HP: ???'
-  playerWizardPrefab: {fileID: 0}
-  enemyWizardPrefab: {fileID: 0}
+  playerWizardPrefab: {fileID: 479107009346987702, guid: f7cbb924131d4e8469ba1d003409ce84, type: 3}
+  enemyWizardPrefab: {fileID: 807302438780380502, guid: f199f808e52493640a7eea86df09661d, type: 3}
   playerSpawnPoint: {fileID: 7738565}
   enemySpawnPoint: {fileID: 895775435}
 --- !u!4 &430613146

@@ -102,7 +102,6 @@ public class MainSceneSetup : MonoBehaviour
         }
         playerHPText = CreateHPText("Player HP", new Vector2(100, -50), TextAnchor.UpperLeft);
         enemyHPText = CreateHPText("Enemy HP", new Vector2(-100, -50), TextAnchor.UpperRight);
-
         ApplyPlaceholderText();
     }
 
@@ -138,7 +137,7 @@ public class MainSceneSetup : MonoBehaviour
         return hpText;
     }
 
-    // ================== NEW WIZARD SPAWNING & BATTLE INIT ==================
+    // ================== WIZARD SPAWNING & BATTLE INIT ==================
     private void InitializeWizards()
     {
         if (playerWizardPrefab == null || enemyWizardPrefab == null)
@@ -147,20 +146,32 @@ public class MainSceneSetup : MonoBehaviour
             return;
         }
 
-        // Instantiate Player
+        // Instantiate Player Wizard
         GameObject playerWizard = Instantiate(playerWizardPrefab, playerSpawnPoint.position, Quaternion.identity);
         playerWizard.name = "PlayerWizard";
         playerWizardController = playerWizard.GetComponent<WizardController>();
 
-        // Instantiate Enemy
+        // Instantiate Enemy Wizard
         GameObject enemyWizard = Instantiate(enemyWizardPrefab, enemySpawnPoint.position, Quaternion.identity);
         enemyWizard.name = "EnemyWizard";
         enemyWizardController = enemyWizard.GetComponent<WizardController>();
 
-        // Subscribe to health updates if needed
+        // Dynamically assign targets: set enemy as target for player, and vice versa.
+        if (playerWizardController != null && enemyWizardController != null)
+        {
+            playerWizardController.wandManager.target = enemyWizard;
+            enemyWizardController.wandManager.target = playerWizard;
+        }
+        else
+        {
+            Debug.LogWarning("One or both WizardControllers are missing.");
+        }
+
+        // Start the battle sequence for both wizards.
         playerWizardController.StartBattle();
         enemyWizardController.StartBattle();
-        Debug.Log("Wizards have been spawned and battle started.");
+
+        Debug.Log("Wizards have been spawned, targets assigned, and battle started.");
     }
 
     private void UpdateHPUI()
