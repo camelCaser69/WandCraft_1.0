@@ -1,48 +1,41 @@
 ﻿// ==================== ProjectileController.cs ====================
-// Controls projectile behavior (movement, collision, and damage).
+// Controls projectile behavior (movement, collision, and damage) with proper directional handling.
 
 using UnityEngine;
 
 public class ProjectileController : MonoBehaviour
 {
-    private GameObject target;
+    private Vector3 direction;
     private float speed;
     private int damage;
+    private GameObject caster;
 
-    private void Start() => Destroy(gameObject, 5f); // Destroy after 5 seconds
+    private void Start() => Destroy(gameObject, 5f); // Auto-destroy after 5 seconds
     
-    public void Initialize(GameObject target, float speed, int damage)
+    public void Initialize(GameObject caster, GameObject target, float speed, int damage)
     {
-        this.target = target;
+        this.caster = caster;
         this.speed = speed;
         this.damage = damage;
+        direction = transform.right;
     }
 
     private void Update()
     {
-        if (target == null) return;
-
-        // Move towards the target
-        transform.position = Vector3.MoveTowards(transform.position, target.transform.position, speed * Time.deltaTime);
+        transform.position += direction * speed * Time.deltaTime;
+        Debug.Log($"Projectile position: {transform.position}");
     }
-    
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject == target)
-        {
-            HitTarget();
-        }
-    }
+        // Ignore collisions with the caster
+        if (collision.gameObject == caster) return;
 
-    private void HitTarget()
-    {
-        if (target.TryGetComponent(out WizardController wizard))
+        if (collision.TryGetComponent(out WizardController wizard))
         {
             wizard.TakeDamage(damage);
             Debug.Log($"Projectile hit {wizard.wizardName} for {damage} damage.");
+            Destroy(gameObject);
         }
-        Destroy(gameObject);
     }
-    
-    
 }

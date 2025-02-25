@@ -20,8 +20,9 @@ public class WandManager : MonoBehaviour
     public void InitializeWand()
     {
         currentMana = wandData.maxMana;
-        Debug.Log($"Wand {gameObject.name} initialized with {currentMana} mana.");
+        Debug.Log($"Wand {gameObject.name} initialized with {currentMana} mana. FirePoint position: {firePoint.position}, rotation: {firePoint.rotation.eulerAngles}");
     }
+
 
     public void StartFiring()
     {
