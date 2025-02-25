@@ -16,5 +16,6 @@ MonoBehaviour:
   manaCost: 10
   cooldown: 0.5
   projectilePrefab: {fileID: 4657926749697978084, guid: ca495f0fc83b35d4190c25fe9adf53a0, type: 3}
-  baseProjectileSpeed: 1
+  baseProjectileSpeed: 10
   damage: 5
+  spawnOffsetDistance: 2

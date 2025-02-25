@@ -1,5 +1,6 @@
 ﻿// ==================== SpellBase.cs ====================
-// Abstract base class for all spells with a helper to instantiate projectiles with a spawn offset.
+// Abstract base class for all spells with a helper to instantiate projectiles aimed at the target.
+
 using UnityEngine;
 
 public abstract class SpellBase : ScriptableObject
@@ -11,13 +12,11 @@ public abstract class SpellBase : ScriptableObject
     // All spells must implement their own CastSpell method.
     public abstract void CastSpell(GameObject caster, GameObject target, float speedMultiplier);
 
-    // Helper method to instantiate a projectile with a forward offset.
-    // This moves the projectile along its local right (assuming that’s its forward direction)
-    // by the given offsetDistance.
-    protected GameObject InstantiateProjectileWithOffset(GameObject projectilePrefab, Transform firePoint, Quaternion rotation, float offsetDistance)
+    // Helper method to instantiate a projectile with an offset along the direction to the target.
+    protected GameObject InstantiateProjectileWithOffset(GameObject projectilePrefab, Transform firePoint, Vector3 directionToTarget, float offsetDistance, Quaternion rotation)
     {
-        Vector3 offset = rotation * (Vector3.right * offsetDistance);
-        GameObject projectile = Instantiate(projectilePrefab, firePoint.position + offset, rotation);
+        Vector3 spawnPosition = firePoint.position + directionToTarget * offsetDistance;
+        GameObject projectile = Instantiate(projectilePrefab, spawnPosition, rotation);
         return projectile;
     }
 }

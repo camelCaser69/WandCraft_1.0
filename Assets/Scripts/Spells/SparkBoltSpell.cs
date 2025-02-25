@@ -1,6 +1,6 @@
 ﻿// ==================== SparkBoltSpell.cs ====================
-// Basic projectile spell similar to "Spark Bolt" from Noita,
-// now using a spawn offset via the helper in SpellBase.
+// Basic projectile spell similar to "Spark Bolt" from Noita, now aiming toward the target.
+
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "SparkBoltSpell", menuName = "Spells/SparkBolt")]
@@ -9,8 +9,8 @@ public class SparkBoltSpell : SpellBase
     public GameObject projectilePrefab;
     public float baseProjectileSpeed = 10f;
     public int damage = 10;
-    // New property to control how far from the firePoint the projectile spawns.
-    public float spawnOffsetDistance = 1.5f;
+    // How far from the firePoint the projectile spawns (to avoid immediate collisions)
+    public float spawnOffsetDistance = 0.5f;
 
     public override void CastSpell(GameObject caster, GameObject target, float speedMultiplier)
     {
@@ -20,21 +20,28 @@ public class SparkBoltSpell : SpellBase
             return;
         }
 
+        // Get the firePoint from the caster's WandManager
         Transform firePoint = caster.GetComponentInChildren<WandManager>().firePoint;
         float spreadAngle = caster.GetComponentInChildren<WandManager>().wandData.spread;
 
-        // Apply random spread within the cone defined by spreadAngle.
-        float angleOffset = Random.Range(-spreadAngle / 2f, spreadAngle / 2f);
-        Quaternion rotation = firePoint.rotation * Quaternion.Euler(0, 0, angleOffset);
+        // Compute the direction from the firePoint to the target
+        Vector3 directionToTarget = (target.transform.position - firePoint.position).normalized;
 
-        // Instantiate the projectile with the offset using the helper method.
-        GameObject projectile = InstantiateProjectileWithOffset(projectilePrefab, firePoint, rotation, spawnOffsetDistance);
+        // Compute the base angle (in degrees) from the horizontal axis
+        float baseAngle = Mathf.Atan2(directionToTarget.y, directionToTarget.x) * Mathf.Rad2Deg;
+        // Apply a random spread offset (in degrees)
+        float angleOffset = Random.Range(-spreadAngle / 2f, spreadAngle / 2f);
+        float finalAngle = baseAngle + angleOffset;
+        Quaternion rotation = Quaternion.Euler(0, 0, finalAngle);
+
+        // Instantiate the projectile with an offset so it doesn't spawn inside the caster.
+        GameObject projectile = InstantiateProjectileWithOffset(projectilePrefab, firePoint, directionToTarget, spawnOffsetDistance, rotation);
 
         // Debug log for spawn details.
-        Debug.Log($"Projectile spawned at {firePoint.position + (rotation * (Vector3.right * spawnOffsetDistance))} with firePoint rotation {firePoint.rotation.eulerAngles}, " +
-                  $"angle offset {angleOffset}°, resulting in projectile rotation {rotation.eulerAngles}.");
+        Debug.Log($"Projectile spawned at {projectile.transform.position} aimed at {target.transform.position}." +
+                  $" BaseAngle: {baseAngle:F2}°, AngleOffset: {angleOffset:F2}°, FinalAngle: {finalAngle:F2}°.");
 
-        // Get the ProjectileController component and initialize it.
+        // Initialize the projectile (pass the caster so it doesn't hit itself).
         ProjectileController controller = projectile.GetComponent<ProjectileController>();
         controller.Initialize(caster, target, baseProjectileSpeed * speedMultiplier, damage);
     }

@@ -1,5 +1,5 @@
 ﻿// ==================== ProjectileController.cs ====================
-// Controls projectile behavior (movement, collision, and damage) with proper directional handling.
+// Controls projectile behavior (movement, collision, and damage) based on its rotation.
 
 using UnityEngine;
 
@@ -11,24 +11,25 @@ public class ProjectileController : MonoBehaviour
     private GameObject caster;
 
     private void Start() => Destroy(gameObject, 5f); // Auto-destroy after 5 seconds
-    
+
     public void Initialize(GameObject caster, GameObject target, float speed, int damage)
     {
         this.caster = caster;
         this.speed = speed;
         this.damage = damage;
+        // Use transform.right as the movement direction if your sprite is drawn facing right.
         direction = transform.right;
+        Debug.Log($"Projectile initialized. Rotation: {transform.rotation.eulerAngles}, Direction: {direction}, Speed: {speed}");
     }
 
     private void Update()
     {
         transform.position += direction * speed * Time.deltaTime;
-        Debug.Log($"Projectile position: {transform.position}");
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Ignore collisions with the caster
+        // Prevent the projectile from hitting the caster.
         if (collision.gameObject == caster) return;
 
         if (collision.TryGetComponent(out WizardController wizard))
