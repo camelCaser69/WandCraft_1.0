@@ -228,9 +228,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 519420031}
+  sceneResolution: {x: 1920, y: 1080}
   uiCanvas: {fileID: 0}
   playerHPText: {fileID: 0}
   enemyHPText: {fileID: 0}
+  useCustomPlaceholderText: 1
+  customPlaceholderText: 'HP: ???'
 --- !u!4 &430613146
 Transform:
   m_ObjectHideFlags: 0

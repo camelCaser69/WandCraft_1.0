@@ -1,14 +1,23 @@
 // ==================== MainSceneSetup.cs ====================
-// Sets up the main scene with camera, lighting, and UI elements for HP display
+// Sets up the main scene with camera, lighting, UI elements for HP display,
+// allows scene resolution adjustments, and supports customizable placeholder text
 using UnityEngine;
 using UnityEngine.UI;
 
 public class MainSceneSetup : MonoBehaviour
 {
+    [Header("Scene Settings")]
     public Camera mainCamera;
+    public Vector2 sceneResolution = new Vector2(1920, 1080);
+
+    [Header("UI Settings")]
     public Canvas uiCanvas;
     public Text playerHPText;
     public Text enemyHPText;
+
+    [Header("Placeholder Settings")]
+    public bool useCustomPlaceholderText = false;
+    public string customPlaceholderText = "HP: ???";
 
     private void Awake()
     {
@@ -32,6 +41,20 @@ public class MainSceneSetup : MonoBehaviour
         }
         mainCamera.clearFlags = CameraClearFlags.SolidColor;
         mainCamera.backgroundColor = Color.gray;
+        AdjustSceneResolution();
+    }
+
+    private void AdjustSceneResolution()
+    {
+        if (sceneResolution.x > 0 && sceneResolution.y > 0)
+        {
+            Screen.SetResolution((int)sceneResolution.x, (int)sceneResolution.y, false);
+            Debug.Log($"Scene resolution set to {sceneResolution.x}x{sceneResolution.y}");
+        }
+        else
+        {
+            Debug.LogWarning("Invalid scene resolution specified. Resolution must be greater than zero.");
+        }
     }
 
     private void SetupLighting()
@@ -53,11 +76,29 @@ public class MainSceneSetup : MonoBehaviour
             GameObject canvasObj = new GameObject("UI Canvas");
             uiCanvas = canvasObj.AddComponent<Canvas>();
             uiCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvasObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = sceneResolution;
             canvasObj.AddComponent<GraphicRaycaster>();
         }
         playerHPText = CreateHPText("Player HP", new Vector2(100, -50), TextAnchor.UpperLeft);
         enemyHPText = CreateHPText("Enemy HP", new Vector2(-100, -50), TextAnchor.UpperRight);
+
+        ApplyPlaceholderText();
+    }
+
+    private void ApplyPlaceholderText()
+    {
+        if (useCustomPlaceholderText)
+        {
+            playerHPText.text = customPlaceholderText;
+            enemyHPText.text = customPlaceholderText;
+        }
+        else
+        {
+            playerHPText.text = "Player HP: ???";
+            enemyHPText.text = "Enemy HP: ???";
+        }
     }
 
     private Text CreateHPText(string label, Vector2 offset, TextAnchor anchor)
