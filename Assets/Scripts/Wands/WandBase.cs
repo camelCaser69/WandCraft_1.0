@@ -3,6 +3,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+[CreateAssetMenu(fileName = "NewWand", menuName = "Wand/WandBase")] // <--- Added this line
 [System.Serializable]
 public class WandBase : ScriptableObject
 {

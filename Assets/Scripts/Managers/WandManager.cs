@@ -1,5 +1,6 @@
 // ==================== WandManager.cs ====================
-// Handles wand firing logic, mana management, and cooldowns
+// Handles wand firing logic, mana management, and cooldowns based on WandBase properties.
+
 using UnityEngine;
 using System.Collections;
 
@@ -9,7 +10,6 @@ public class WandManager : MonoBehaviour
     public Transform firePoint;
     public GameObject target;
     private float currentMana;
-    private bool isRecharging;
     private Coroutine firingCoroutine;
 
     private void Start()
@@ -48,24 +48,24 @@ public class WandManager : MonoBehaviour
         {
             if (currentMana >= wandData.CalculateTotalManaCost())
             {
-                Debug.Log($"Wand {gameObject.name} fired.");
+                Debug.Log($"Wand {gameObject.name} firing sequence started.");
                 foreach (SpellBase spell in wandData.spells)
                 {
                     if (currentMana >= spell.manaCost)
                     {
-                        spell.CastSpell(gameObject, target);
+                        spell.CastSpell(gameObject, target, wandData.projectileSpeedMultiplier);
                         currentMana -= spell.manaCost;
-                        Debug.Log($"Spell {spell.spellName} fired. Remaining mana: {currentMana}");
-                        yield return new WaitForSeconds(spell.cooldown);
+                        Debug.Log($"Spell {spell.spellName} cast. Remaining mana: {currentMana}");
+                        yield return new WaitForSeconds(spell.cooldown / wandData.projectileSpeedMultiplier);
                     }
                     else
                     {
-                        Debug.Log("No mana for next spell. Waiting for recharge.");
+                        Debug.Log("Not enough mana for next spell. Waiting for recharge.");
                         break;
                     }
                 }
-                Debug.Log("Wand sequence complete. Waiting for global cooldown.");
-                yield return new WaitForSeconds(wandData.cooldown);
+                Debug.Log("Wand sequence complete. Waiting for recharge time.");
+                yield return new WaitForSeconds(wandData.rechargeTime);
             }
             else
             {

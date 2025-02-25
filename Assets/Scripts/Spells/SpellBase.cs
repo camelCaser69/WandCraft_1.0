@@ -8,5 +8,6 @@ public abstract class SpellBase : ScriptableObject
     public float manaCost;
     public float cooldown;
 
-    public abstract void CastSpell(GameObject caster, GameObject target);
+    // ✅ Updated to include projectileSpeedMultiplier
+    public abstract void CastSpell(GameObject caster, GameObject target, float projectileSpeedMultiplier);
 }
